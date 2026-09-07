@@ -1,5 +1,5 @@
-import React from 'react';
-import { Radio, Cpu, Mic, Palette, Brain, RefreshCw, Settings, Globe } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Radio, Cpu, Mic, Palette, Brain, RefreshCw, Settings, Globe, History, Menu, X, ChevronDown } from 'lucide-react';
 
 export default function Navbar({
   isRimeActive = true,
@@ -12,20 +12,24 @@ export default function Navbar({
   onOpenSettingsModal,
   onOpenThemeModal,
   onOpenMemoryModal,
+  onOpenHistory,
   onNewTale,
   inStory = false
 }) {
-  const getLanguageLabel = (code) => {
-    switch (code) {
-      case 'hi': return 'HI';
-      case 'es': return 'ES';
-      case 'fr': return 'FR';
-      case 'de': return 'DE';
-      case 'ja': return 'JA';
-      case 'en': return 'EN';
-      default: return 'AUTO';
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
-  };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMenuOpen]);
 
   return (
     <header className="echoes-navbar" role="banner">
@@ -49,7 +53,7 @@ export default function Navbar({
       </div>
 
       {/* Right: Telemetry & Navigation */}
-      <div className="navbar-right-col">
+      <div className="navbar-right-col" ref={menuRef}>
         {/* RIME Status */}
         <div className="nav-status-pill" title={rimeStatus === 'active' ? 'Rime TTS audio is active' : rimeStatus === 'fallback' ? 'Browser voice fallback is active' : 'Rime TTS configuration status'}>
           <span className={`pill-dot-indicator ${isRimeSpeaking ? 'speaking' : rimeStatus === 'active' ? 'active' : rimeStatus === 'fallback' || rimeStatus === 'error' ? 'offline' : isRimeActive ? 'configured' : 'offline'}`} />
@@ -57,15 +61,9 @@ export default function Navbar({
         </div>
 
         {/* AI Status */}
-        <div className="nav-status-pill" title="OpenAI Narrative & Story Memory">
+        <div className="nav-status-pill" title="Gemini 3.5 Flash Lite & Pitch Analysis">
           <span className={`pill-dot-indicator ${isAIThinking ? 'thinking' : 'active'}`} />
-          <span className="pill-title">AI</span>
-        </div>
-
-        {/* VOICE INPUT Status */}
-        <div className="nav-status-pill" title="Voice Input & Speech Recognition">
-          <span className={`pill-dot-indicator ${isListening ? 'listening' : 'active'}`} />
-          <span className="pill-title">VOICE INPUT</span>
+          <span className="pill-title">GEMINI</span>
         </div>
 
         {/* Language Selector */}
@@ -77,28 +75,17 @@ export default function Navbar({
             onChange={(e) => onChangeLanguage && onChangeLanguage(e.target.value)}
             aria-label="Language selector"
           >
-            <option value="auto">Language: AUTO</option>
             <option value="en">English (EN)</option>
-            <option value="hi">हिन्दी (Hindi)</option>
             <option value="es">Español (ES)</option>
             <option value="fr">Français (FR)</option>
             <option value="de">Deutsch (DE)</option>
+            <option value="hi">हिन्दी (HI)</option>
             <option value="ja">日本語 (JA)</option>
           </select>
         </div>
 
-        {/* Action Controls: Settings, Theme, Memory, Reset */}
+        {/* Action Controls & Top-Right Menu Cluster */}
         <div className="navbar-btn-group">
-          <button
-            type="button"
-            className="btn-icon-tool"
-            onClick={onOpenSettingsModal}
-            title="Experience Settings"
-            aria-label="Settings"
-          >
-            <Settings size={15} color="#45E0D0" />
-          </button>
-
           <button
             type="button"
             className="btn-icon-tool"
@@ -107,16 +94,6 @@ export default function Navbar({
             aria-label="Theme selector"
           >
             <Palette size={15} color="#8B7CFF" />
-          </button>
-
-          <button
-            type="button"
-            className="btn-icon-tool"
-            onClick={onOpenMemoryModal}
-            title="AI Story Memory"
-            aria-label="Story memory inspector"
-          >
-            <Brain size={15} color="#B8B4FF" />
           </button>
 
           {inStory && (
@@ -130,7 +107,80 @@ export default function Navbar({
               <RefreshCw size={15} />
             </button>
           )}
+
+          {/* Top-Right Menu Trigger (History, Settings, Brain Cluster) */}
+          <button
+            type="button"
+            className={`btn-icon-tool header-menu-btn ${isMenuOpen ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            title="Menu: History, Settings & AI Engine"
+            aria-label="Open menu"
+            aria-expanded={isMenuOpen}
+          >
+            {isMenuOpen ? <X size={16} color="#45E0D0" /> : <Menu size={16} color="#45E0D0" />}
+          </button>
         </div>
+
+        {/* Expandable Top-Right Menu */}
+        {isMenuOpen && (
+          <div className="header-menu-dropdown" role="menu">
+            <button
+              type="button"
+              className="header-menu-item"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onOpenHistory?.();
+              }}
+              role="menuitem"
+            >
+              <History size={16} color="#8B7CFF" />
+              <div className="header-menu-item-info">
+                <span className="header-menu-item-title">Session History</span>
+                <span className="header-menu-item-desc">Browse local pitch transcripts</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              className="header-menu-item"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onOpenSettingsModal?.();
+              }}
+              role="menuitem"
+            >
+              <Settings size={16} color="#45E0D0" />
+              <div className="header-menu-item-info">
+                <span className="header-menu-item-title">Experience Settings</span>
+                <span className="header-menu-item-desc">Text size, animations, subtitles</span>
+              </div>
+            </button>
+
+            <div className="header-menu-divider" />
+
+            {/* AI / Brain Info Section */}
+            <div className="header-menu-telemetry">
+              <div className="telemetry-header">
+                <Brain size={15} color="#B8B4FF" />
+                <span>AI ENGINE & RIME TELEMETRY</span>
+              </div>
+              <div className="telemetry-line">
+                <span className="telemetry-key">Model:</span>
+                <span className="telemetry-value">gemini-3.5-flash-lite</span>
+              </div>
+              <div className="telemetry-line">
+                <span className="telemetry-key">Rime TTS:</span>
+                <span className="telemetry-value">
+                  {isRimeSpeaking ? 'Speaking' : rimeStatus === 'active' ? 'Active (coda)' : isRimeActive ? 'Configured' : 'Fallback'}
+                </span>
+              </div>
+              <div className="telemetry-line">
+                <span className="telemetry-key">Voices:</span>
+                  <span className="telemetry-value">Masonry (Stern) / Eyre (Friendly)</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Settings, X, Type, Play, Eye, Sliders, Volume2, Sparkles } from 'lucide-react';
+import { Settings, X, Type, Play, Eye, Sliders, Volume2, Sparkles, Globe } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-export default function SettingsModal({ isOpen, onClose }) {
+export default function SettingsModal({ isOpen, onClose, selectedLanguage = 'en', onChangeLanguage }) {
   const { settings, updateSettings } = useTheme();
 
   if (!isOpen) return null;
@@ -22,10 +22,36 @@ export default function SettingsModal({ isOpen, onClose }) {
 
         <div className="modal-body">
           <p className="memory-info-text">
-            Configure your storyteller interface, or change settings anytime by voice (e.g. <em>"Make text bigger"</em> or <em>"Turn animations off"</em>).
+            Configure your interface, typography, spoken voice cadence, and live subtitles.
           </p>
 
           <div className="settings-list">
+            {/* Language Selector */}
+            <div className="settings-row">
+              <div className="settings-label-group">
+                <Globe size={16} color="#45E0D0" />
+                <div>
+                  <div className="settings-name">Interface Language</div>
+                  <div className="settings-desc">Display language for UI headers, buttons, and badges</div>
+                </div>
+              </div>
+              <div className="settings-control-group">
+                <select
+                  className="nav-lang-select"
+                  value={selectedLanguage}
+                  onChange={(e) => onChangeLanguage?.(e.target.value)}
+                  aria-label="Interface language selector"
+                  style={{ minWidth: '140px', padding: '0.4rem 0.6rem', borderRadius: '8px' }}
+                >
+                  <option value="en">English (EN)</option>
+                  <option value="es">Español (ES)</option>
+                  <option value="fr">Français (FR)</option>
+                  <option value="de">Deutsch (DE)</option>
+                  <option value="hi">हिन्दी (HI)</option>
+                  <option value="ja">日本語 (JA)</option>
+                </select>
+              </div>
+            </div>
             {/* Font Size Option */}
             <div className="settings-row">
               <div className="settings-label-group">

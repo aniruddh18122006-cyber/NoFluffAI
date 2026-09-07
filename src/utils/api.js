@@ -77,14 +77,29 @@ export async function continueStory({
   };
 }
 
+export async function analyzeInvestor({ category, conversationHistory, latestFounderMessage = '', audioBase64 = null, audioMimeType = null, persona = 'stern', isConclusion = false, signal = null }) {
+  const t0 = performance.now();
+  const res = await fetch('/api/investor/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ category, conversationHistory, latestFounderMessage, audioBase64, audioMimeType, persona, isConclusion }),
+    signal
+  });
+
+  const latencyMs = Math.round(performance.now() - t0);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Investor analysis failed.');
+  return { ...data, latencyMs };
+}
+
 export async function fetchTTSAudio(text, options = {}) {
-  const { language = 'en', speedAlpha = 0.95, signal } = options;
+  const { language = 'en', speedAlpha = 0.95, speaker = 'astra', signal } = options;
   const t0 = performance.now();
   try {
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, language, speedAlpha }),
+      body: JSON.stringify({ text, language, speedAlpha, speaker }),
       signal
     });
 

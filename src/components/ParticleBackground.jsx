@@ -1,12 +1,19 @@
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ParticleBackground() {
   const canvasRef = useRef(null);
+  const { settings } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+
+    if (!settings.animations) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
 
     let animationFrameId;
     let width = (canvas.width = window.innerWidth);
@@ -77,7 +84,7 @@ export default function ParticleBackground() {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [settings.animations]);
 
   return <canvas ref={canvasRef} className="particle-canvas" aria-hidden="true" />;
 }

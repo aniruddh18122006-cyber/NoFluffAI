@@ -16,35 +16,22 @@ export async function synthesizeSpeech(text, options = {}) {
     };
   }
 
-  const {
-    speaker = 'marsh', // Deep, resonant, storyteller voice
-    modelId = 'mist',
-    samplingRate = 22050,
-    speedAlpha = 0.95, // Slightly deliberate, immersive storytelling pace
-    lang = 'en',
-    signal
-  } = options;
+  const { signal, speaker, lang } = options;
+  const supportedLanguages = new Set(['en', 'es', 'fr', 'de', 'ja', 'hi', 'pt', 'ar', 'it']);
+  const requestedLanguage = String(lang || 'en').toLowerCase().split('-')[0];
+  const rimeLanguage = supportedLanguages.has(requestedLanguage) ? requestedLanguage : 'en';
 
-  const supportedLanguages = new Set(['en', 'de', 'es', 'fr', 'hi', 'ja']);
-  if (lang && lang !== 'auto' && !supportedLanguages.has(lang)) {
-    return {
-      fallback: true,
-      reason: `Rime language '${lang}' is not supported by this application.`
-    };
+  if (requestedLanguage !== rimeLanguage) {
+    console.warn(`[Rime Service] Language "${lang}" is not supported by the configured Rime voice. Falling back to "${rimeLanguage}".`);
   }
 
   try {
     const payload = {
-      speaker,
       text,
-      modelId,
-      samplingRate,
-      speedAlpha
+      speaker: speaker || 'astra',
+      modelId: 'coda',
+      lang: rimeLanguage
     };
-
-    if (lang && lang !== 'auto' && lang !== 'en') {
-      payload.lang = lang;
-    }
 
     // Rime API REST call
     const timeoutController = new AbortController();
@@ -56,7 +43,7 @@ export async function synthesizeSpeech(text, options = {}) {
     const response = await fetch('https://users.rime.ai/v1/rime-tts', {
       method: 'POST',
       headers: {
-        'Accept': 'audio/mp3',
+        'Accept': 'audio/wav',
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
@@ -96,7 +83,7 @@ export async function synthesizeSpeech(text, options = {}) {
 
     return {
       fallback: false,
-      contentType,
+      contentType: contentType || 'audio/wav',
       audioBuffer: buffer
     };
   } catch (error) {

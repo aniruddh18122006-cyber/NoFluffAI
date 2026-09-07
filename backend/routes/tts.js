@@ -1,5 +1,5 @@
 import express from 'express';
-import { synthesizeSpeech } from '../services/rime.js';
+import { synthesizeSpeech } from '../ridhima-integration/rime.js';
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
   });
 
   try {
-    const { text, language, speedAlpha } = req.body;
+    const { text, language, speedAlpha, speaker } = req.body;
 
     if (!text || typeof text !== 'string' || text.trim() === '' || text.length > 12000) {
       return res.status(400).json({
@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const result = await synthesizeSpeech(text, { lang: language, speedAlpha, signal: requestController.signal });
+    const result = await synthesizeSpeech(text, { lang: language, speedAlpha, speaker, signal: requestController.signal });
 
     if (result.fallback) {
       // Return JSON signaling frontend to activate Web Speech API fallback

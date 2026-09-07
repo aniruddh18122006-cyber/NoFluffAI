@@ -3,9 +3,12 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import LandingPage from './components/LandingPage';
 import StoryScreen from './components/StoryScreen';
+import InvestorScreen from './components/InvestorScreen';
 import LoadingScreen from './components/LoadingScreen';
 import ParticleBackground from './components/ParticleBackground';
 import SettingsModal from './components/SettingsModal';
+import ThemeModal from './components/ThemeModal';
+import StoryMemoryModal from './components/StoryMemoryModal';
 import { startStory, continueStory, fetchHealth } from './utils/api';
 
 function AppContent() {
@@ -113,6 +116,17 @@ function AppContent() {
       return [];
     }
   });
+  const [investorTranscript, setInvestorTranscript] = useState(() => {
+    return [];
+  });
+  const [investorCategory, setInvestorCategory] = useState(() => {
+    try { return localStorage.getItem('investor_category') || 'Consumer App'; } catch { return 'Consumer App'; }
+  });
+  const [investorPersona, setInvestorPersona] = useState(() => {
+    try { return localStorage.getItem('investor_persona') || 'stern'; } catch { return 'stern'; }
+  });
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [demoPitch, setDemoPitch] = useState('');
 
   const [isProcessingChoice, setIsProcessingChoice] = useState(false);
   const [healthStatus, setHealthStatus] = useState(null);
@@ -133,8 +147,10 @@ function AppContent() {
       localStorage.setItem('echoes_current_story', JSON.stringify(story));
       localStorage.setItem('echoes_story_history', JSON.stringify(storyHistory));
       localStorage.setItem('echoes_transcript', JSON.stringify(transcript));
+      localStorage.setItem('investor_category', investorCategory);
+      localStorage.setItem('investor_persona', investorPersona);
     } catch (e) {}
-  }, [screen, selectedLanguage, memory, story, storyHistory, transcript]);
+  }, [screen, selectedLanguage, memory, story, storyHistory, transcript, investorTranscript, investorCategory, investorPersona]);
 
   // Initial Health Check
   useEffect(() => {
@@ -237,6 +253,18 @@ function AppContent() {
       default:
         console.warn('[Safe Action] Unrecognized action type:', type);
     }
+  };
+
+  const handleStartInvestor = (category, prefilledPitch = '', persona = 'stern') => {
+    storyRequestGenerationRef.current += 1;
+    storyAbortRef.current?.abort();
+    setInvestorCategory(category);
+    setInvestorPersona(persona);
+    setDemoPitch(prefilledPitch);
+    setInvestorTranscript([]);
+    try { localStorage.removeItem('investor_transcript'); } catch (e) {}
+    setError(null);
+    setScreen('investor');
   };
 
   // Start new tale
@@ -531,12 +559,16 @@ function AppContent() {
     });
     setStoryHistory([]);
     setTranscript([]);
+    setInvestorTranscript([]);
+    try { localStorage.removeItem('investor_transcript'); } catch (e) {}
+    try { localStorage.removeItem('investor_category'); } catch (e) {}
+    setDemoPitch('');
     setError(null);
     setScreen('landing');
   };
 
   const isRimeConnected = Boolean(healthStatus?.services?.rime);
-  const isLLMReady = Boolean(healthStatus?.services?.openai || true);
+  const isLLMReady = Boolean(healthStatus?.services?.gemini || true);
 
   return (
     <div className="echoes-app-container">
@@ -553,6 +585,7 @@ function AppContent() {
         onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         onOpenThemeModal={() => setIsThemeModalOpen(true)}
         onOpenMemoryModal={() => setIsMemoryModalOpen(true)}
+        onOpenHistory={() => setIsHistoryModalOpen(true)}
         onNewTale={handleRestartTale}
         inStory={screen === 'story'}
       />
@@ -562,10 +595,26 @@ function AppContent() {
           <LoadingScreen customMessage={loadingMessage} />
         ) : screen === 'landing' ? (
           <LandingPage
-            onStart={handleStartStory}
+            onStart={(category, persona) => handleStartInvestor(category, '', persona)}
+            onDemo={(category, pitch, persona) => handleStartInvestor(category, pitch, persona)}
             isLoading={loading}
-            selectedLanguage={selectedLanguage}
+            selectedLanguage={selectedLanguage === 'auto' ? 'en' : selectedLanguage}
             onChangeLanguage={(lang) => setSelectedLanguage(lang)}
+          />
+        ) : screen === 'investor' ? (
+          <InvestorScreen
+            category={investorCategory}
+            messages={investorTranscript}
+            initialPitch={demoPitch}
+            onMessagesChange={setInvestorTranscript}
+            onRestart={handleRestartTale}
+            onBack={handleRestartTale}
+            selectedLanguage={selectedLanguage === 'auto' ? 'en' : selectedLanguage}
+            persona={investorPersona}
+            onVoiceStateChange={setStoryVoiceState}
+            onRimeStatusChange={setRimeRuntimeStatus}
+            isHistoryOpen={isHistoryModalOpen}
+            setIsHistoryOpen={setIsHistoryModalOpen}
           />
         ) : (
           <StoryScreen
@@ -594,11 +643,28 @@ function AppContent() {
         )}
       </div>
 
-      {/* Standalone Settings Modal if triggered from landing page */}
+      {/* Standalone Settings Modal */}
       <SettingsModal
-        isOpen={isSettingsModalOpen && screen === 'landing'}
+        isOpen={isSettingsModalOpen && screen !== 'story'}
         onClose={() => setIsSettingsModalOpen(false)}
+        selectedLanguage={selectedLanguage}
+        onChangeLanguage={(lang) => setSelectedLanguage(lang)}
       />
+      {screen !== 'story' && (
+        <>
+          <ThemeModal
+            isOpen={isThemeModalOpen}
+            onClose={() => setIsThemeModalOpen(false)}
+          />
+          <StoryMemoryModal
+            isOpen={isMemoryModalOpen}
+            onClose={() => setIsMemoryModalOpen(false)}
+            memory={memory}
+            onClearMemory={() => handleUpdateMemory({ clear: true })}
+            onStartNewStory={handleRestartTale}
+          />
+        </>
+      )}
     </div>
   );
 }

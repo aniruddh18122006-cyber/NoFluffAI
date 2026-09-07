@@ -55,8 +55,8 @@ USER (Can Interrupt At Any Second — including during audio)
 
 | Component | File | Role |
 | :--- | :--- | :--- |
-| **Rime Service** | `server/services/rime.js` | `synthesizeSpeech(text, options)` — authenticated `POST` to Rime API, returns binary audio buffer |
-| **TTS Route** | `server/routes/tts.js` | `POST /api/tts` — receives text + language, calls Rime service, streams `audio/mp3` |
+| **Rime Service** | `../backend/ridhima-integration/rime.js` | `synthesizeSpeech(text, options)` — authenticated `POST` to Rime API, returns binary audio buffer |
+| **TTS Route** | `../backend/routes/tts.js` | `POST /api/tts` — receives text + language, calls Rime service, streams `audio/mp3` |
 | **Frontend API** | `src/utils/api.js` | `fetchTTSAudio()` — tracks real latency via `performance.now()`, supports AbortController, creates Object URL |
 | **Voice Controller** | `src/components/StoryScreen.jsx` | Manages autoplay, interruption, continuous recognition, auto-listen after narration |
 | **Voice Core UI** | `src/components/VoiceCore.jsx` | Reactive orb: idle / listening / thinking / speaking / interrupted / error |
@@ -65,7 +65,7 @@ USER (Can Interrupt At Any Second — including during audio)
 
 ### 5. Verified Rime API Parameters
 
-Implemented in `server/services/rime.js`:
+Implemented in `../backend/ridhima-integration/rime.js`: 
 
 | Parameter | Value |
 | :--- | :--- |
