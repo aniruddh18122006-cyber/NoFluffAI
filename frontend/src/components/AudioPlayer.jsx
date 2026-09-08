@@ -238,7 +238,7 @@ export default function AudioPlayer({
             <span>
               {isFallback
                 ? 'ARCANE VOICE (Browser Voice Fallback)'
-                : 'ARCANE VOICE — Powered by Rime (Model: mist | Speaker: marsh)'}
+                : 'INVESTOR VOICE — Powered by Rime (Model: coda)'}
             </span>
           </span>
         </div>

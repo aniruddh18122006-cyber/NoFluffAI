@@ -1,182 +1,86 @@
-# ECHOES — AI Voice Storyteller
+# AI Investor Pitch Coach
 
-> *"Don't read the story. Live it."*  
-> An interactive story that listens, remembers, and changes with you.
+AI Investor Pitch Coach lets founders rehearse a pitch with a simulated investor. The founder chooses a business context, investor persona, and optional focus area, then submits a pitch and answers five follow-up questions. Gemini generates the next question from the founder's pitch and conversation history. Rime provides spoken investor responses when its API key is configured.
 
----
+## Product Flow
 
-## ✦ Product Identity
+1. Choose a category: `Consumer App`, `B2B SaaS`, or `Marketplace`.
+2. Choose an investor persona:
+   - **Friendly Investor**: Dana, a warm and constructive investor. Rime speaker: `luna`.
+   - **Stern Investor**: Marcus, a skeptical and direct investor. Rime speaker: `astra`.
+3. Submit the pitch by typing or recording it.
+4. Answer the investor's questions by typing or recording each answer.
+5. Gemini asks exactly five investor questions, then returns an in-character conclusion.
 
-**ECHOES** transforms storytelling from a passive "storybook with a play button" into a **living AI voice agent**. The user talks naturally to the application: the AI listens, understands, and responds, while **Rime TTS** narrates the journey in real time. If the user interrupts, the narration halts immediately, and the AI adapts on the fly.
+The investor prompt asks one question at a time, reacts to the founder's actual claims, and avoids repeating topics already covered. The selected business context influences the areas explored, such as customers, competition, pricing, retention, distribution, or marketplace liquidity.
 
----
-
-## ✦ System Architecture
+## Architecture
 
 ```
-         USER SPEECH
-              ↓
-      SPEECH RECOGNITION  (Web Speech API with Auto-routing)
-              ↓
-           AI AGENT       (Intent, Memory & Command Dispatcher)
-              ↓
-            OPENAI        (gpt-4o-mini with Spoken Prompt Cadence)
-              ↓
-           RESPONSE       (narrative, speechText, memoryUpdate, action)
-              ↓
-           RIME TTS       (POST https://users.rime.ai/v1/rime-tts)
-              ↓
-            AUDIO         (Binary MP3 Stream & Live Waveform)
-              ↓
-             USER         (Live Interruption Supported)
+React/Vite frontend
+        |
+        | POST /api/investor/analyze
+        v
+Node/Express backend -> Gemini (analysis and audio transcription)
+        |
+        | POST /api/tts
+        v
+Rime TTS (modelId: coda) -> audio/wav
 ```
 
----
+The Gemini integration is in `backend/ridhima-integration/investor.js`. It uses model `gemini-3.5-flash-lite` for investor analysis and recorded-audio transcription. The Rime integration is in `backend/ridhima-integration/rime.js`; it posts to `https://users.rime.ai/v1/rime-tts` with `modelId: coda`. The frontend selects `luna` for Friendly and `astra` for Stern and sends that speaker to `/api/tts`.
 
-## ✦ Key Features
+When Rime is unavailable, `/api/tts` returns a fallback response and the frontend reports the unavailable audio state. No API key is stored in the frontend.
 
-### 1. Modern Dark Aurora Interface
-- Built with a futuristic, calm, dark aurora design palette:
-  - **Background**: `#080B14`
-  - **Deep Surface**: `#101522`
-  - **Card**: `#151C2B`
-  - **Electric Cyan**: `#45E0D0`
-  - **Violet**: `#8B7CFF`
-  - **Soft Lavender**: `#B8B4FF`
-  - **Warm White**: `#F4F7FB`
-  - **Success**: `#57E6A5`
-- 6 Themes: **Aurora**, **Midnight**, **Ocean**, **Violet**, **Emerald**, and **Sunset**.
+## Requirements
 
-### 2. Central Interactive Voice Core
-- Replaces traditional static audio players with a living central reactive centerpiece:
-  - `✦ READY`: "Talk to Echoes"
-  - `● LISTENING`: Animated concentric rings & pulse
-  - `✦ THINKING`: Rotating particle glow
-  - `◉ SPEAKING`: Multi-bar dynamic waveform
-  - `Ⅱ INTERRUPTED`: "Listening again..."
-  - `! ISSUE`: Voice connection status
+- Node.js with npm
+- A Gemini API key for investor analysis and recorded-audio transcription
+- A Rime API key for spoken investor responses
 
-### 3. Instantaneous Voice Interruption
-- Users can interrupt the AI at any moment by speaking, tapping the Voice Core or Mic button, or pressing Space/Escape.
-- Active audio halts instantly (`audio.pause()`, `currentTime = 0`), pending requests are aborted via `AbortController`, and the microphone captures the new intent.
-
-### 4. Dual Memory System (Zero External Database)
-- **AI Story Memory**: Structured memory object tracking protagonist name, current location, discovered items/relics, and established world lore.
-- **Conversation Memory**: Live visible feed recording user statements, Echoes replies, and system memory updates (`Memory updated: Character → Maya`).
-- Persisted locally in `localStorage` with graceful in-memory fallback.
-
-### 5. Safe Voice Commands & Settings
-- Natural language commands map to predefined, safe frontend actions:
-  - **Themes**: *"Switch to Ocean theme"*, *"Make it more purple"*
-  - **Settings**: *"Make the text larger"*, *"Turn animations off"*, *"Enable subtitles"*
-  - **Memory**: *"Remember my character is Maya"*, *"Forget the silver key"*, *"What's in my story memory?"*
-  - **Playback**: *"Stop"*, *"Pause"*, *"Repeat that"*, *"Start a new story"*
-- Strict safety: **Zero** arbitrary code execution.
-
-### 6. Primary Rime TTS & Transparent Fallback
-- Rime TTS is the primary spoken output (`modelId: mist`, `speaker: marsh`, `samplingRate: 22050`, `speedAlpha: 0.95`).
-- Browser `SpeechSynthesis` functions strictly as an explicitly labeled fallback when no API key is configured or on network error.
-- Displays real measured latencies (via `performance.now()`). Zero fabricated metrics.
-- The Navbar reports active Rime only after a successful audio response. A configured key alone is not synthesis verification.
-- Current workspace verification returned `fallback: true` because `RIME_API_KEY` was not configured. No live Rime success is claimed.
-
-#### Rime Runtime Contract
-- Endpoint: `POST https://users.rime.ai/v1/rime-tts` over HTTPS.
-- Model: `mist`; voice: `marsh`; requested sample rate: `22050`; requested output: MP3.
-- Application language codes sent to Rime: `en`, `de`, `es`, `fr`, `hi`, and `ja`.
-- The API key is loaded by the Node server from `.env` and is never sent to the browser.
-- `/api/tts` validates text and speed, applies a 30-second upstream timeout, validates an audio response, and returns JSON fallback information when Rime is unavailable.
-
-#### Reproducible TTS Verification
-Start the backend with `npm run server`, then run this request without placing the key in source code:
-
-```powershell
-$body = @{ text = "This is a live Rime synthesis verification."; language = "en"; speedAlpha = 0.95 } | ConvertTo-Json
-Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:5000/api/tts" -Method Post -ContentType "application/json" -Body $body
-```
-
-Successful live Rime output is an HTTP 200 audio response with non-zero bytes. JSON containing `fallback: true` is not a Rime success.
-
----
-
-## ✦ Environment Variables
-
-Create a `.env` file in the root directory:
+Create `frontend/.env` from `.env.example` and provide:
 
 ```env
 PORT=5000
-
-# OpenAI API Key (Story Generation & Memory Orchestration)
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Rime TTS API Key (Spoken Audio Output)
+GEMINI_API_KEY=your_gemini_api_key_here
 RIME_API_KEY=your_rime_api_key_here
 ```
 
-*(If keys are not configured, ECHOES runs in offline demonstration mode with local story branches, safe actions, memory mutations, and browser speech fallback.)*
+Do not commit `.env` or API keys.
 
----
+## Run Locally
 
-## ✦ Getting Started
+From the `frontend` directory:
 
-### 1. Install Dependencies
-```bash
+```powershell
 npm install
-```
-
-### 2. Run in Development Mode
-Starts both backend server (port 5000) and Vite client (port 3000):
-```bash
 npm run dev
 ```
 
-### 3. Build for Production
-```bash
+The configured development script starts the Node backend on `http://localhost:5000` and the Vite frontend on `http://localhost:3000`.
+
+Useful commands:
+
+```powershell
+npm run server
+npm run client
 npm run build
 ```
 
----
+Health check:
 
-## ✦ Primary Hackathon Demonstration Flow (16 Steps)
+```text
+GET http://localhost:5000/api/health
+```
 
-1. Open `http://localhost:3000` and click **"🎙 START TALKING"**.
-2. AI begins Chapter 1; Voice Core transitions to `◉ SPEAKING`.
-3. Rime narrates the opening lore and options with natural conversational cadence.
-4. **Interrupt Rime**: Click the Voice Core orb or say *"Wait, stop"*.
-5. Rime audio stops immediately; state changes to `Ⅱ INTERRUPTED` then `● LISTENING`.
-6. Speak a new choice: *"I want to inspect the celestial astrolabe"*.
-7. Speech is recognized and appears in the Live Conversation stream.
-8. AI agent understands intent and advances to Chapter 2.
-9. Rime resumes narration of the new path.
-10. **Mutate Memory**: Speak *"Remember that my character name is Maya"*.
-11. Observe conversation confirmation: `Memory updated: Character → Maya`.
-12. **Query Memory**: Ask *"What is my character name?"* -> AI answers using Maya.
-13. **Voice Theme**: Say *"Switch to Ocean theme"* -> UI transitions to Ocean palette.
-14. **Voice Settings**: Say *"Make text bigger"* -> Story typography scales up.
-15. **Language Command**: Say *"Change language to Hindi"* -> System routes language.
-16. Open the **Story Memory Modal** (Brain icon) to inspect cataloged relics and lore.
+The health response reports whether Gemini and Rime keys are configured. A configured Rime key is not, by itself, proof that synthesis succeeded; the UI marks Rime active only after receiving an audio response.
 
----
+## API Routes
 
-## ✦ Mobile Responsiveness
+- `POST /api/investor/analyze`: analyzes a founder pitch or answer, optionally transcribing `audioBase64`, and returns the cleaned transcript, investor response, and key observations.
+- `POST /api/tts`: validates narration text and returns Rime audio or a JSON fallback response.
+- `GET /api/health`: reports service configuration status.
 
-On mobile devices, ECHOES delivers a first-class stacked layout:
-1. **Header** (Sticky brand & status pills)
-2. **Central Voice Core** (Large, easy to tap)
-3. **Current Story Card** (Compact, readable serif)
-4. **Live Conversation Stream** (Scrollable message feed)
-5. **Voice Input Dock** (Large microphone button)
-6. **Branching Choices** (Touch-friendly pills)
-7. **AI State Bar** (Live telemetry)
+## Gemini Model Verification
 
-## ✦ Known Limitations
-- OpenAI and Rime credentials are external prerequisites. Without them, the local story engine and browser speech fallback are used.
-- Browser speech recognition is primarily available in Chromium-based browsers and requires microphone permission.
-- Rime language acceptance is provider-dependent; unsupported responses are disclosed as browser fallback.
-- Interruption cancels browser requests and playback promptly. A provider may finish work after a client disconnect if it already accepted the request.
-- Express is version 4 in the current package.
-
----
-
-## ✦ License
-MIT License
+Google's current [Gemini model catalog](https://ai.google.dev/gemini-api/docs/models) lists `gemini-3.5-flash-lite` as a stable Gemini 3 model. The backend calls that exact ID, and the UI displays `GEMINI 3.5 FLASH LITE` and `gemini-3.5-flash-lite`.
