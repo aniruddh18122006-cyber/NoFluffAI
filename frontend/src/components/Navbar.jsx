@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Radio, Cpu, Mic, Palette, Brain, RefreshCw, Settings, Globe, History, Menu, X, ChevronDown } from 'lucide-react';
+import { Cpu, Palette, Brain, RefreshCw, Settings, Globe, History, Menu, X } from 'lucide-react';
 
 export default function Navbar({
   isRimeActive = true,
@@ -14,6 +14,7 @@ export default function Navbar({
   onOpenMemoryModal,
   onOpenHistory,
   onNewTale,
+  rimeVoice = 'astra',
   inStory = false
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,16 +40,8 @@ export default function Navbar({
           <span className="gem-dot" />
         </div>
         <div className="brand-text-block">
-          <div className="brand-title-main">ECHOES</div>
-          <div className="brand-subtitle-sub">AI VOICE STORYTELLER</div>
-        </div>
-      </div>
-
-      {/* Center: Live Session Indicator */}
-      <div className="navbar-center-col">
-        <div className="live-session-capsule">
-          <span className="session-pulse-dot" />
-          <span className="session-text">LIVE SESSION</span>
+          <div className="brand-title-main">AI INVESTOR PITCH COACH</div>
+          <div className="brand-subtitle-sub">FOUNDER PRACTICE ROOM</div>
         </div>
       </div>
 
@@ -176,7 +169,7 @@ export default function Navbar({
               </div>
               <div className="telemetry-line">
                 <span className="telemetry-key">Voices:</span>
-                  <span className="telemetry-value">Masonry (Stern) / Eyre (Friendly)</span>
+                  <span className="telemetry-value">{String(rimeVoice).toUpperCase()}</span>
               </div>
             </div>
           </div>

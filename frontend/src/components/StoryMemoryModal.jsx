@@ -37,7 +37,7 @@ export default function StoryMemoryModal({
         {/* Modal Body */}
         <div className="modal-body memory-grid">
           <p className="memory-info-text">
-            Echoes dynamically stores important story facts, character identities, and key objects as you speak. You can also modify memory naturally by voice (e.g. <em>"My character name is Maya"</em> or <em>"Remember the dragon is Ember"</em>).
+            The app dynamically stores important story facts, character identities, and key objects as you speak. You can also modify memory naturally by voice (e.g. <em>"My character name is Maya"</em> or <em>"Remember the dragon is Ember"</em>).
           </p>
 
           <div className="memory-cards-container">

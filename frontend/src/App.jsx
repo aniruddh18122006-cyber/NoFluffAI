@@ -120,8 +120,9 @@ function AppContent() {
     return [];
   });
   const [investorCategory, setInvestorCategory] = useState(() => {
-    try { return localStorage.getItem('investor_category') || 'Consumer App'; } catch { return 'Consumer App'; }
+    try { return localStorage.getItem('investor_category') || ''; } catch { return ''; }
   });
+  const [investorFocus, setInvestorFocus] = useState('Balanced Mix');
   const [investorPersona, setInvestorPersona] = useState(() => {
     try { return localStorage.getItem('investor_persona') || 'stern'; } catch { return 'stern'; }
   });
@@ -147,10 +148,12 @@ function AppContent() {
       localStorage.setItem('echoes_current_story', JSON.stringify(story));
       localStorage.setItem('echoes_story_history', JSON.stringify(storyHistory));
       localStorage.setItem('echoes_transcript', JSON.stringify(transcript));
-      localStorage.setItem('investor_category', investorCategory);
+      if (investorCategory) localStorage.setItem('investor_category', investorCategory);
+      else localStorage.removeItem('investor_category');
+      localStorage.setItem('investor_focus', investorFocus);
       localStorage.setItem('investor_persona', investorPersona);
     } catch (e) {}
-  }, [screen, selectedLanguage, memory, story, storyHistory, transcript, investorTranscript, investorCategory, investorPersona]);
+  }, [screen, selectedLanguage, memory, story, storyHistory, transcript, investorTranscript, investorCategory, investorPersona, investorFocus]);
 
   // Initial Health Check
   useEffect(() => {
@@ -255,23 +258,30 @@ function AppContent() {
     }
   };
 
-  const handleStartInvestor = (category, prefilledPitch = '', persona = 'stern') => {
+  const handleStartInvestor = (category, prefilledPitch = '', persona = 'stern', focus = 'Balanced Mix') => {
     storyRequestGenerationRef.current += 1;
     storyAbortRef.current?.abort();
     setInvestorCategory(category);
     setInvestorPersona(persona);
+    setInvestorFocus(focus);
     setDemoPitch(prefilledPitch);
     setInvestorTranscript([]);
     try { localStorage.removeItem('investor_transcript'); } catch (e) {}
     setError(null);
-    setScreen('investor');
+    setLoading(true);
+    setLoadingMessage('Session started');
+    window.setTimeout(() => {
+      setLoading(false);
+      setLoadingMessage(null);
+      setScreen('investor');
+    }, 650);
   };
 
   // Start new tale
   const handleStartStory = async () => {
     setError(null);
     setLoading(true);
-    setLoadingMessage('Echoes is awakening...');
+    setLoadingMessage('AI Investor Pitch Coach is preparing...');
 
     const requestGeneration = ++storyRequestGenerationRef.current;
     if (storyAbortRef.current) {
@@ -326,7 +336,7 @@ function AppContent() {
     } catch (err) {
       if (requestGeneration === storyRequestGenerationRef.current && err.name !== 'AbortError') {
         console.error('Failed to start story:', err);
-        setError('Echoes is momentarily quiet. Please speak again.');
+        setError('The investor coach is momentarily quiet. Please speak again.');
       }
     } finally {
       if (requestGeneration === storyRequestGenerationRef.current) {
@@ -433,7 +443,7 @@ function AppContent() {
     } catch (err) {
       if (requestGeneration === storyRequestGenerationRef.current && err.name !== 'AbortError') {
         console.error('Failed to continue story:', err);
-        setError('Echoes encountered an unexpected disturbance. Please speak again.');
+        setError('The investor coach encountered an unexpected disturbance. Please speak again.');
         appendTranscript('error', 'Arcane disturbance: could not complete spoken path.');
       }
     } finally {
@@ -510,8 +520,8 @@ function AppContent() {
     } catch (err) {
       if (requestGeneration === storyRequestGenerationRef.current && err.name !== 'AbortError') {
         console.error('Failed to continue story:', err);
-        setError('Echoes could not understand the path. Please try speaking again.');
-        appendTranscript('error', 'Echoes could not divine the selected path.');
+        setError('The investor coach could not understand the path. Please try speaking again.');
+        appendTranscript('error', 'The investor coach could not understand the selected path.');
       }
     } finally {
       if (requestGeneration === storyRequestGenerationRef.current) {
@@ -586,6 +596,7 @@ function AppContent() {
         onOpenThemeModal={() => setIsThemeModalOpen(true)}
         onOpenMemoryModal={() => setIsMemoryModalOpen(true)}
         onOpenHistory={() => setIsHistoryModalOpen(true)}
+        rimeVoice={investorPersona === 'friendly' ? 'luna' : 'astra'}
         onNewTale={handleRestartTale}
         inStory={screen === 'story'}
       />
@@ -595,8 +606,7 @@ function AppContent() {
           <LoadingScreen customMessage={loadingMessage} />
         ) : screen === 'landing' ? (
           <LandingPage
-            onStart={(category, persona) => handleStartInvestor(category, '', persona)}
-            onDemo={(category, pitch, persona) => handleStartInvestor(category, pitch, persona)}
+            onStart={(category, persona, focus) => handleStartInvestor(category, '', persona, focus)}
             isLoading={loading}
             selectedLanguage={selectedLanguage === 'auto' ? 'en' : selectedLanguage}
             onChangeLanguage={(lang) => setSelectedLanguage(lang)}
@@ -611,6 +621,7 @@ function AppContent() {
             onBack={handleRestartTale}
             selectedLanguage={selectedLanguage === 'auto' ? 'en' : selectedLanguage}
             persona={investorPersona}
+            focus={investorFocus}
             onVoiceStateChange={setStoryVoiceState}
             onRimeStatusChange={setRimeRuntimeStatus}
             isHistoryOpen={isHistoryModalOpen}

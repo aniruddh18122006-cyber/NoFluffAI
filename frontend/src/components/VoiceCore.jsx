@@ -15,7 +15,7 @@ export default function VoiceCore({ state = 'idle', isRimeActive = true, onOrbCl
         className={`voice-core-orb ${state}`}
         onClick={onOrbClick}
         aria-label={`Voice Core state: ${state}. Click to interact.`}
-        title={state === 'speaking' ? 'Click to interrupt' : 'Click to talk to Echoes'}
+        title={state === 'speaking' ? 'Click to interrupt' : 'Click to talk to the investor coach'}
       >
         <div className="orb-aurora-glow" />
 
@@ -24,7 +24,7 @@ export default function VoiceCore({ state = 'idle', isRimeActive = true, onOrbCl
             <div className="orb-symbol-stack">
               <Sparkles size={38} className="symbol-cyan-glow" />
               <span className="orb-state-tag">✦ READY</span>
-              <span className="orb-sub-tag">"Talk to Echoes"</span>
+              <span className="orb-sub-tag">"Talk to the investor coach"</span>
             </div>
           )}
 
@@ -82,7 +82,7 @@ export default function VoiceCore({ state = 'idle', isRimeActive = true, onOrbCl
       <div className="voice-core-pill">
         <span className={`core-pill-dot ${state}`} />
         <span className="core-pill-label">
-          {state === 'idle' && 'READY ✦ "TALK TO ECHOES"'}
+          {state === 'idle' && 'READY ✦ "TALK TO INVESTOR COACH"'}
           {state === 'listening' && 'CAPTURING NATURAL SPEECH'}
           {state === 'thinking' && 'PROCESSING INTENT & LORE'}
           {state === 'speaking' && (isRimeActive ? 'RIME TTS SPOKEN OUTPUT ACTIVE' : 'VOICE NARRATION ACTIVE')}

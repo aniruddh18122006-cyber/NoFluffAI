@@ -4,7 +4,7 @@ import { analyzeInvestorPitch, transcribeInvestorAudio } from '../ridhima-integr
 const router = express.Router();
 
 router.post('/analyze', async (req, res) => {
-  const { category, conversationHistory, latestFounderMessage, audioBase64, audioMimeType, persona, isConclusion } = req.body || {};
+  const { category, conversationHistory, latestFounderMessage, audioBase64, audioMimeType, persona, focus, isConclusion } = req.body || {};
   let founderMessage = latestFounderMessage ? String(latestFounderMessage).trim() : '';
 
   if (audioBase64) {
@@ -32,6 +32,7 @@ router.post('/analyze', async (req, res) => {
       conversationHistory: Array.isArray(conversationHistory) ? conversationHistory : [],
       latestFounderMessage: founderMessage,
       persona,
+      focus,
       isConclusion: Boolean(isConclusion)
     });
     return res.json({ success: true, transcript: founderMessage, ...result });

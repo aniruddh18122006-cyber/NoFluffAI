@@ -131,11 +131,11 @@ export default function VoiceInputBar({
           <input
             type="text"
             className="chat-text-input"
-            placeholder="Speak or type to Echoes..."
+            placeholder="Speak or type to the investor coach..."
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             disabled={isThinking}
-            aria-label="Text message to Echoes"
+            aria-label="Text message to the investor coach"
           />
           <button
             type="submit"

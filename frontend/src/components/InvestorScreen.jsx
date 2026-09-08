@@ -27,6 +27,7 @@ export default function InvestorScreen({
   onBack,
   selectedLanguage = 'en',
   persona = 'stern',
+  focus = 'Balanced Mix',
   onVoiceStateChange,
   onRimeStatusChange,
   isHistoryOpen = false,
@@ -72,7 +73,7 @@ export default function InvestorScreen({
   const messagesRef = useRef(messages);
   const savedSessionSignatureRef = useRef(null);
 
-  const voiceSpeaker = String(persona).toLowerCase() === 'friendly' ? 'eyre' : 'masonry';
+  const voiceSpeaker = String(persona).toLowerCase() === 'friendly' ? 'luna' : 'astra';
   const rimeSupportedLanguages = new Set(['en', 'es', 'fr', 'de', 'ja', 'hi', 'pt', 'ar', 'it']);
   const hasRimeLanguageFallback = !rimeSupportedLanguages.has(String(selectedLanguage).toLowerCase().split('-')[0]);
 
@@ -95,6 +96,7 @@ export default function InvestorScreen({
       date: new Date().toISOString(),
       category,
       persona,
+      focus,
       messages: messagesToSave
     };
     setSessionHistory((previous) => {
@@ -202,6 +204,7 @@ export default function InvestorScreen({
         audioBase64: audioPayload?.audioBase64 || null,
         audioMimeType: audioPayload?.audioMimeType || null,
         persona,
+        focus,
         isConclusion: isConclusionTurn,
         signal: abortRef.current.signal
       });
@@ -439,7 +442,7 @@ export default function InvestorScreen({
       )}
 
       <section className="investor-transcript-panel" aria-label="Pitch conversation">
-        {messages.length === 0 ? <div className="investor-empty"><Brain size={28} /><p>{t.emptyPitchHelper}</p></div> : messages.map((message) => (
+        {messages.length === 0 ? <div className="investor-empty"><Brain size={28} /><p>{t.emptyPitchHelper}</p></div> : messages.filter((message) => message.role !== 'understanding').map((message) => (
           <article className={`investor-message investor-${message.role} ${message.isConclusion ? 'investor-conclusion' : ''}`} key={message.id}>
             <div className="investor-message-label">
               {message.isConclusion
@@ -482,7 +485,7 @@ export default function InvestorScreen({
                 <button type="button" className="history-back-button" onClick={() => setSelectedHistorySession(null)}><ArrowLeft size={14} /> {t.allSessions}</button>
                 <h3>{selectedHistorySession.category} {selectedHistorySession.persona ? `(${selectedHistorySession.persona.toUpperCase()})` : ''}</h3>
                 <time>{new Date(selectedHistorySession.date).toLocaleString()}</time>
-                {selectedHistorySession.messages.map((message) => <article className={`investor-message investor-${message.role}`} key={message.id}><div className="investor-message-label">{message.role === 'founder' ? t.founderLabel : message.role === 'investor' ? t.investorLabel : t.aiUnderstandingLabel} <time>{message.timestamp}</time></div><p>{message.text}</p></article>)}
+                {selectedHistorySession.messages.filter((message) => message.role !== 'understanding').map((message) => <article className={`investor-message investor-${message.role}`} key={message.id}><div className="investor-message-label">{message.role === 'founder' ? t.founderLabel : t.investorLabel} <time>{message.timestamp}</time></div><p>{message.text}</p></article>)}
               </div>
             ) : (
               <div className="history-list">

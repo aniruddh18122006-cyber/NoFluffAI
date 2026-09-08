@@ -1,5 +1,5 @@
 /**
- * Frontend API Utility for ECHOES — AI Voice Storyteller
+ * Frontend API Utility for AI Investor Pitch Coach
  * Includes real latency measurement tracking (no fake metrics).
  */
 
@@ -67,7 +67,7 @@ export async function continueStory({
 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || 'Echoes could not understand the path. Please try speaking again.');
+    throw new Error(errData.message || 'The investor coach could not understand the path. Please try speaking again.');
   }
 
   const data = await res.json();
@@ -77,12 +77,12 @@ export async function continueStory({
   };
 }
 
-export async function analyzeInvestor({ category, conversationHistory, latestFounderMessage = '', audioBase64 = null, audioMimeType = null, persona = 'stern', isConclusion = false, signal = null }) {
+export async function analyzeInvestor({ category, conversationHistory, latestFounderMessage = '', audioBase64 = null, audioMimeType = null, persona = 'stern', focus = 'Balanced Mix', isConclusion = false, signal = null }) {
   const t0 = performance.now();
   const res = await fetch('/api/investor/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ category, conversationHistory, latestFounderMessage, audioBase64, audioMimeType, persona, isConclusion }),
+    body: JSON.stringify({ category, conversationHistory, latestFounderMessage, audioBase64, audioMimeType, persona, focus, isConclusion }),
     signal
   });
 

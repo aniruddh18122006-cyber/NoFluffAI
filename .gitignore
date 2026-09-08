@@ -1,5 +1,16 @@
-/.env
-/dist
-/node_modules
+# Local environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies
 **/node_modules/
+
+# Build output
 **/dist/
+
+# Workspace-only lockfile outside the project folders
+/package-lock.json
+
+# The complete backend is tracked at the repository root
+/frontend/backend/

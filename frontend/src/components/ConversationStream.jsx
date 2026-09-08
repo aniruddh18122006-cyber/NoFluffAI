@@ -50,7 +50,7 @@ export default function ConversationStream({
         {messages.length === 0 ? (
           <div className="stream-empty-state">
             <Sparkles size={24} color="#8B7CFF" />
-            <p className="empty-title">Speak or type to Echoes</p>
+            <p className="empty-title">Speak or type to the investor coach</p>
             <p className="empty-subtitle">Your dialogue, voice decisions, and memory updates will chronicle here.</p>
           </div>
         ) : (
@@ -141,7 +141,7 @@ export default function ConversationStream({
                     ) : (
                       <>
                         <Sparkles size={12} color="#8B7CFF" />
-                        <span className="badge-name ai-name">ECHOES</span>
+                        <span className="badge-name ai-name">INVESTOR COACH</span>
                       </>
                     )}
                   </div>
