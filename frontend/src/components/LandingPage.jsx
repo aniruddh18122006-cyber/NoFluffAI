@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, Cpu, Brain, Zap, Globe, ArrowRight, ShieldAlert, HeartHandshake } from 'lucide-react';
+import { Radio, Cpu, Brain, Globe, ArrowRight, ShieldAlert, HeartHandshake } from 'lucide-react';
 import { getTranslation } from '../utils/translations';
 
 const categories = ['Consumer App', 'B2B SaaS', 'Marketplace'];
@@ -45,9 +45,9 @@ export default function LandingPage({ onStart, isLoading, selectedLanguage = 'en
       </div>
 
       <div className="persona-selection-card">
-        <div className="onboarding-step-indicator" aria-label={`Step ${currentStep} of 3`}>STEP {currentStep} OF 3</div>
+        <div className="onboarding-step-indicator" aria-label={t.onboardingStep(currentStep)}> {t.onboardingStep(currentStep)} </div>
         {currentStep === 1 && <div className="onboarding-step">
-          <div className="persona-header-kicker">CHOOSE YOUR INVESTOR</div>
+          <div className="persona-header-kicker">{t.chooseInvestor}</div>
           <p className="persona-subtext">{t.selectPersonaHelp}</p>
           <div className="persona-buttons-row">
             <button type="button" className={`persona-choice-btn ${selectedPersona === 'friendly' ? 'active' : ''}`} onClick={() => setSelectedPersona('friendly')} aria-pressed={selectedPersona === 'friendly'}>
@@ -66,7 +66,7 @@ export default function LandingPage({ onStart, isLoading, selectedLanguage = 'en
           <div className="selection-options category-options">
             {categories.map((category) => {
               const description = category === 'Consumer App' ? t.consumerBusinessDesc : category === 'B2B SaaS' ? t.saasBusinessDesc : t.marketplaceBusinessDesc;
-              return <button type="button" className={`selection-choice-btn ${selectedCategory === category ? 'active' : ''}`} key={category} onClick={() => setSelectedCategory(category)} aria-pressed={selectedCategory === category}><span className="selection-choice-copy"><strong>{category}</strong><small>{description}</small></span><ArrowRight size={16} /></button>;
+              return <button type="button" className={`selection-choice-btn ${selectedCategory === category ? 'active' : ''}`} key={category} onClick={() => setSelectedCategory(category)} aria-pressed={selectedCategory === category}><span className="selection-choice-copy"><strong>{t.categoryLabels[category]}</strong><small>{description}</small></span>{selectedCategory === category ? <span className="selection-selected-check" aria-hidden="true">✓</span> : <ArrowRight size={16} />}</button>;
             })}
           </div>
         </div>}
@@ -79,7 +79,7 @@ export default function LandingPage({ onStart, isLoading, selectedLanguage = 'en
         </div>}
         <div className="onboarding-step-actions">
           {currentStep > 1 && <button type="button" className="onboarding-back-button" onClick={() => setCurrentStep((step) => step - 1)}>BACK</button>}
-          {currentStep < 3 && <button type="button" className="onboarding-next-button" onClick={() => setCurrentStep((step) => step + 1)} disabled={currentStep === 1 ? !selectedPersona : !selectedCategory}>NEXT <ArrowRight size={16} /></button>}
+          {currentStep < 3 && <button type="button" className="onboarding-next-button" onClick={() => setCurrentStep((step) => step + 1)} disabled={currentStep === 1 ? !selectedPersona : !selectedCategory}>{t.next} <ArrowRight size={16} /></button>}
         </div>
       </div>
 
@@ -113,7 +113,7 @@ export default function LandingPage({ onStart, isLoading, selectedLanguage = 'en
       <div className="welcome-badges-row">
         <div className="welcome-pill-badge">
           <Radio size={13} color="#45E0D0" />
-          <span>RIME VOICE ({selectedPersona === 'friendly' ? 'LUNA' : 'ASTRA'})</span>
+          <span>{t.rimeStatus}</span>
         </div>
         <div className="welcome-pill-badge">
           <Cpu size={13} color="#8B7CFF" />
@@ -122,10 +122,6 @@ export default function LandingPage({ onStart, isLoading, selectedLanguage = 'en
         <div className="welcome-pill-badge">
           <Globe size={13} color="#45E0D0" />
           <span>{selectedLanguage.toUpperCase()}</span>
-        </div>
-        <div className="welcome-pill-badge">
-          <Zap size={13} color="#F59E0B" />
-          <span>RIME VOICE ({selectedPersona === 'friendly' ? 'LUNA' : 'ASTRA'})</span>
         </div>
         <div className="welcome-pill-badge">
           <Brain size={13} color="#8B7CFF" />

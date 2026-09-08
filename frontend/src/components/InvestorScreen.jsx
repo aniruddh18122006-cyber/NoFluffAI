@@ -411,11 +411,11 @@ export default function InvestorScreen({
         <div>
           <button type="button" className="investor-back-button" onClick={onBack} title="Return to pitch selection"><ArrowLeft size={16} /> {t.back}</button>
           <div className="welcome-sub-kicker">{t.coachTitle} • {persona === 'friendly' ? t.friendlyPersona : t.sternPersona}</div>
-          <h1>{category}</h1>
+          <h1>{t.categoryLabels?.[category] || category}</h1>
           <p>
             {persona === 'friendly'
-              ? 'Pitching to a supportive mentor who tests viability with constructive questions.'
-              : 'Pitching to a skeptical investor who demands concrete evidence and numbers.'}
+              ? t.friendlyInvestorIntro
+              : t.sternInvestorIntro}
           </p>
         </div>
         <div>

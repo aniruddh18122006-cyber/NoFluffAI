@@ -14,7 +14,6 @@ export default function Navbar({
   onOpenMemoryModal,
   onOpenHistory,
   onNewTale,
-  rimeVoice = 'astra',
   inStory = false
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -166,10 +165,6 @@ export default function Navbar({
                 <span className="telemetry-value">
                   {isRimeSpeaking ? 'Speaking' : rimeStatus === 'active' ? 'Active (coda)' : isRimeActive ? 'Configured' : 'Fallback'}
                 </span>
-              </div>
-              <div className="telemetry-line">
-                <span className="telemetry-key">Voices:</span>
-                  <span className="telemetry-value">{String(rimeVoice).toUpperCase()}</span>
               </div>
             </div>
           </div>
