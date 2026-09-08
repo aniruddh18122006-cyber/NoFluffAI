@@ -36,7 +36,7 @@ def get_investor_line(conversation_history):
     contents = [turn["content"] for turn in conversation_history]
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
+        model="gemini-3.5-flash-lite",
         contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=INVESTOR_SYSTEM_PROMPT
