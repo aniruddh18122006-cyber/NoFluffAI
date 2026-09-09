@@ -127,12 +127,12 @@ export default function InvestorScreen({
     try {
       setCurrentSpeakingText(text);
       abortRef.current = new AbortController();
-      const result = await fetchTTSAudio(text, {
-        language: selectedLanguage,
-        speedAlpha: settings.narrationSpeed || 0.95,
-        speaker: voiceSpeaker,
-        signal: abortRef.current.signal
-      });
+     const result = await fetchTTSAudio(text, {
+     language: selectedLanguage,
+     speaker: voiceSpeaker,
+     persona,
+       signal: abortRef.current.signal
+   });
       if (generation !== requestGenerationRef.current) return;
       if (result.fallback) {
         onRimeStatusChange?.('error');

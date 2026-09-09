@@ -30,7 +30,8 @@ export async function synthesizeSpeech(text, options = {}) {
       text,
       speaker: speaker || 'astra',
       modelId: 'coda',
-      lang: rimeLanguage
+      lang: rimeLanguage,
+      timeScaleFactor: options.timeScaleFactor || 1.0,
     };
 
     // Rime API REST call

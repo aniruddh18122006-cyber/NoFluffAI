@@ -1,5 +1,11 @@
 import express from 'express';
 import { synthesizeSpeech } from '../ridhima-integration/rime.js';
+function getDefaultTimeScaleForPersona(persona) {
+  const key = String(persona || '').toLowerCase();
+  if (key === 'stern') return 0.95;
+  if (key === 'friendly') return 1.05;
+  return 1.0;
+}
 
 const router = express.Router();
 
@@ -16,7 +22,7 @@ router.post('/', async (req, res) => {
   });
 
   try {
-    const { text, language, speedAlpha, speaker } = req.body;
+    const { text, language, timeScaleFactor , speaker, persona } = req.body;
 
     if (!text || typeof text !== 'string' || text.trim() === '' || text.length > 12000) {
       return res.status(400).json({
@@ -25,14 +31,17 @@ router.post('/', async (req, res) => {
       });
     }
 
-    if (speedAlpha !== undefined && (!Number.isFinite(Number(speedAlpha)) || Number(speedAlpha) < 0.5 || Number(speedAlpha) > 2)) {
-      return res.status(400).json({
-        success: false,
-        message: 'speedAlpha must be a number between 0.5 and 2.'
-      });
-    }
-
-    const result = await synthesizeSpeech(text, { lang: language, speedAlpha, speaker, signal: requestController.signal });
+    if (timeScaleFactor !== undefined && (!Number.isFinite(Number(timeScaleFactor)) || Number(timeScaleFactor) < 0.8 || Number(timeScaleFactor) > 1.2)) {
+  return res.status(400).json({
+    success: false,
+    message: 'timeScaleFactor must be a number between 0.8 and 1.2.'
+  });
+}
+    const resolvedTimeScaleFactor = timeScaleFactor !== undefined
+  ? Number(timeScaleFactor)
+  : getDefaultTimeScaleForPersona(persona);
+   
+    const result = await synthesizeSpeech(text, { lang: language, timeScaleFactor, speaker, signal: requestController.signal });
 
     if (result.fallback) {
       // Return JSON signaling frontend to activate Web Speech API fallback

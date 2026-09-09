@@ -93,13 +93,13 @@ export async function analyzeInvestor({ category, conversationHistory, latestFou
 }
 
 export async function fetchTTSAudio(text, options = {}) {
-  const { language = 'en', speedAlpha = 0.95, speaker = 'astra', signal } = options;
+  const { language = 'en', speaker = 'astra', persona, signal } = options;
   const t0 = performance.now();
   try {
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, language, speedAlpha, speaker }),
+      body: JSON.stringify({ text, language, speaker, persona }),
       signal
     });
 
