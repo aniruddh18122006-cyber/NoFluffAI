@@ -45,15 +45,15 @@ export default function BottomSystemBar({
           </span>
         </div>
 
-        {/* OpenAI LLM Status */}
-        <div className="telemetry-pill" title="OpenAI Structured Story Intelligence">
-          <Cpu size={12} color="#C9A45C" />
-          <span className="telemetry-name">OPENAI</span>
+        {/* Gemini LLM Status */}
+          <div className="telemetry-pill" title="Gemini Investor Intelligence">
+           <Cpu size={12} color="#C9A45C" />
+            <span className="telemetry-name">GEMINI</span>
           <span className={`telemetry-dot ${isGeneratingStory ? 'dot-working' : 'dot-active'}`} />
           <span className="telemetry-state">
-            {isGeneratingStory ? 'DIVINING' : 'READY'}
-          </span>
-        </div>
+         {isGeneratingStory ? 'DIVINING' : 'READY'}
+        </span>
+       </div>
 
         {/* Voice Input Status */}
         <div className="telemetry-pill" title="Web Speech Recognition Input">

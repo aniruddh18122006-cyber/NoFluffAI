@@ -6,7 +6,7 @@ AI Investor Pitch Coach lets founders rehearse a pitch with a simulated investor
 
 1. Choose a category: `Consumer App`, `B2B SaaS`, or `Marketplace`.
 2. Choose an investor persona:
-   - **Friendly Investor**: Dana, a warm and constructive investor. Rime speaker: `luna`.
+   - **Friendly Investor**: Dana, a warm and constructive investor. Rime speaker: `Astra`.
    - **Stern Investor**: Marcus, a skeptical and direct investor. Rime speaker: `astra`.
 3. Submit the pitch by typing or recording it.
 4. Answer the investor's questions by typing or recording each answer.
@@ -28,7 +28,7 @@ Node/Express backend -> Gemini (analysis and audio transcription)
 Rime TTS (modelId: coda) -> audio/wav
 ```
 
-The Gemini integration is in `backend/ridhima-integration/investor.js`. It uses model `gemini-3.5-flash-lite` for investor analysis and recorded-audio transcription. The Rime integration is in `backend/ridhima-integration/rime.js`; it posts to `https://users.rime.ai/v1/rime-tts` with `modelId: coda`. The frontend selects `luna` for Friendly and `astra` for Stern and sends that speaker to `/api/tts`.
+The Gemini integration is in `backend/ridhima-integration/investor.js`. It uses model `gemini-3.5-flash-lite` for investor analysis and recorded-audio transcription. The Rime integration is in `backend/ridhima-integration/rime.js`; it posts to `https://users.rime.ai/v1/rime-tts` with `modelId: coda`. The frontend selects `astra` for Friendly and `astra` for Stern and sends that speaker to `/api/tts`.
 
 When Rime is unavailable, `/api/tts` returns a fallback response and the frontend reports the unavailable audio state. No API key is stored in the frontend.
 

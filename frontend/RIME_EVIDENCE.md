@@ -28,7 +28,7 @@ The route validates non-empty text up to 12,000 characters and returns JSON with
 
 | Persona | Investor character | Rime speaker |
 | --- | --- | --- |
-| Friendly | Dana | `luna` |
+| Friendly | Dana | `astra` |
 | Stern | Marcus | `astra` |
 
 The application sends the selected speaker in the JSON body of `/api/tts`. If no speaker is supplied by a caller, the backend default is `astra`.
@@ -46,4 +46,4 @@ With a valid `RIME_API_KEY`, a successful response has an audio content type and
 
 ## Current Verification Status
 
-The source-level integration is verified against the request contract above: model `coda`, default speaker `astra`, and the persona speakers `luna` and `astra`. No live audio response is claimed in this document because a usable Rime API key was not available during this documentation pass. The command above is the live check to run in an environment with credentials.
+The source-level integration is verified against the request contract above: model `coda`, default speaker `astra`, and the persona speaker `astra`. No live audio response is claimed in this document because a usable Rime API key was not available during this documentation pass. The command above is the live check to run in an environment with credentials.

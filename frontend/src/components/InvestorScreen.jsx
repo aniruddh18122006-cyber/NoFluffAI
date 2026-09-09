@@ -73,7 +73,7 @@ export default function InvestorScreen({
   const messagesRef = useRef(messages);
   const savedSessionSignatureRef = useRef(null);
 
-  const voiceSpeaker = String(persona).toLowerCase() === 'friendly' ? 'luna' : 'astra';
+  const voiceSpeaker = 'astra';
   const rimeSupportedLanguages = new Set(['en', 'es', 'fr', 'de', 'ja', 'hi', 'pt', 'ar', 'it']);
   const hasRimeLanguageFallback = !rimeSupportedLanguages.has(String(selectedLanguage).toLowerCase().split('-')[0]);
 

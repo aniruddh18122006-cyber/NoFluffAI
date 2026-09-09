@@ -596,7 +596,7 @@ function AppContent() {
         onOpenThemeModal={() => setIsThemeModalOpen(true)}
         onOpenMemoryModal={() => setIsMemoryModalOpen(true)}
         onOpenHistory={() => setIsHistoryModalOpen(true)}
-        rimeVoice={investorPersona === 'friendly' ? 'luna' : 'astra'}
+        rimeVoice="astra"
         onNewTale={handleRestartTale}
         inStory={screen === 'story'}
       />

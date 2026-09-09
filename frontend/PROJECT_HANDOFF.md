@@ -76,7 +76,6 @@ The backend contains:
 and:
 
 `backend/ridhima-integration/investor.js`
-`backend/ridhima-integration/openai.js`
 `backend/ridhima-integration/rime.js`
 
 The investor flow uses Gemini for AI investor analysis/question generation.
